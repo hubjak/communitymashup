@@ -34,6 +34,7 @@ import org.sociotech.communitymashup.source.mediatum.apiwrapper.items.Attribute;
 import org.sociotech.communitymashup.source.mediatum.apiwrapper.items.Node;
 import org.sociotech.communitymashup.source.mediatum.meta.MediaTUMTags;
 import org.sociotech.communitymashup.source.mediatum.properties.MediaTUMProperties;
+import org.sociotech.mashupsync.literaturereference.LiteratureReference;
 
 /**
  * Transforms results from the MediaTUM api wrapper into CommunityMashup objects.
@@ -113,15 +114,19 @@ public class MediaTUMTransformation {
 				}
 			}
 			
-			// check filter
-			if (minYearInt>0) {
-				Date tmpdate = getDate(node);
-				System.out.println("Date: " + tmpdate);
-				if (tmpdate == null) continue;
+			LiteratureReference ref = new LiteratureReference();
+
+			Date tmpdate = getDate(node);
+			
+			if(tmpdate != null) {
 				Calendar cal = new GregorianCalendar();
 				cal.setTime(tmpdate);
-				if (cal.get(Calendar.YEAR) < minYearInt) continue;
-			}
+				ref.setYear(cal.get(Calendar.YEAR));
+			} else if(minYearInt > 0) continue;
+
+			// check filter
+			if (minYearInt>0 && ref.getYear() < minYearInt) continue;
+			
 			
 			// call the factory to create a new object
 			Content temp = factory.createContent();
@@ -139,8 +144,7 @@ public class MediaTUMTransformation {
 				source.log("Content object merged "+temp.getIdent(), LogService.LOG_INFO);				
 			}
 			
-			temp.metaTag(MediaTUMTags.MEDIATUM);			
-			temp.addCitation("Etzala nur ein Test");
+			temp.metaTag(MediaTUMTags.MEDIATUM);		
 			
 			// check type (publication or project)
 			boolean isPub = true;
@@ -163,6 +167,8 @@ public class MediaTUMTransformation {
 				temp.setName(node.getAttribute("project-title"));
 			}			
 			
+			ref.setTitle(temp.getName());
+			
 			//set the full reference and abstract
 			String tmpa = "";
 			if (isPub) {
@@ -182,7 +188,7 @@ public class MediaTUMTransformation {
 			temp.setStringValue(tmpa);
 			
 			//set created date
-			Date tmpdate = getDate(node);
+			tmpdate = getDate(node);
 			if (tmpdate != null) {
 				temp.setCreated(tmpdate);
 			}			
@@ -237,6 +243,7 @@ public class MediaTUMTransformation {
 						Person pauthor = createPerson((authorarray.length > 1 ? authorarray[1]: ""), authorarray[0], new Date());
 						if (first) temp.setAuthor(pauthor);
 						else temp.addContributor(pauthor);
+						ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 						first = false;
 					} else {
 						// first check if person object already exists ...
@@ -246,6 +253,7 @@ public class MediaTUMTransformation {
 							Person pauthor = createPerson((authorarray.length > 1 ? authorarray[1]: ""), authorarray[0], new Date());
 							if (first) temp.setAuthor(pauthor);
 							else temp.addContributor(pauthor);
+							ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 							first = false;
 						}
 					}
@@ -260,6 +268,7 @@ public class MediaTUMTransformation {
 		    		if (shouldCreateEditors()) {
 		    			Person peditor = createPerson((editorarray.length > 1 ? editorarray[1]: ""), editorarray[0], new Date());
 		    			temp.addContributor(peditor);
+		    			ref.addAuthor(peditor.getFirstname(), peditor.getLastname());
 		    		} else {
 		    			// first check if person object already exists ...
 		    			String tmpname = (editorarray.length > 1 ? editorarray[1] + " ": "") + editorarray[0];
@@ -267,6 +276,7 @@ public class MediaTUMTransformation {
 		    			if (pauthors!=null && pauthors.size()>0) {
 		    				Person peditor = createPerson((editorarray.length > 1 ? editorarray[1]: ""), editorarray[0], new Date());
 			    			temp.addContributor(peditor);
+			    			ref.addAuthor(peditor.getFirstname(), peditor.getLastname());
 		    			}
 		    		}
 		    		
@@ -288,6 +298,7 @@ public class MediaTUMTransformation {
 			    			String firstname = names[0];
 			    			if (shouldCreateAuthors()) {
 								Person pauthor = createPerson(firstname, lastname, new Date());
+								ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 								temp.addContributor(pauthor);
 							} else {
 								// first check if person object already exists ...
@@ -295,6 +306,7 @@ public class MediaTUMTransformation {
 								EList<Person> pauthors = source.getDataSet().getPersonsWithName(tmpname);
 								if (pauthors!=null && pauthors.size()>0) {
 									Person pauthor = createPerson(firstname, lastname, new Date());
+									ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 									temp.addContributor(pauthor);
 								}
 							}
@@ -311,6 +323,7 @@ public class MediaTUMTransformation {
 			    		}
 						if (shouldCreateAuthors()) {
 							Person pauthor = createPerson(firstname, lastname, new Date());
+							ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 							temp.addContributor(pauthor);
 						} else {
 							// first check if person object already exists ...
@@ -319,6 +332,7 @@ public class MediaTUMTransformation {
 							if (pauthors!=null && pauthors.size()>0) {
 								Person pauthor = createPerson((firstname.length() > 1 ? firstname: ""), lastname, new Date());
 								temp.addContributor(pauthor);
+								ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 							}
 						}
 			    	}
@@ -332,6 +346,7 @@ public class MediaTUMTransformation {
 						if (shouldCreateAuthors()) {
 							Person pauthor = createPerson(firstname, lastname, new Date());
 							temp.addContributor(pauthor);
+							ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 						} else {
 							// first check if person object already exists ...
 							String tmpname = firstname + " " + lastname;
@@ -339,6 +354,7 @@ public class MediaTUMTransformation {
 							if (pauthors!=null && pauthors.size()>0) {
 								Person pauthor = createPerson((firstname.length() > 1 ? firstname: ""), lastname, new Date());
 								temp.addContributor(pauthor);
+								ref.addAuthor(pauthor.getFirstname(), pauthor.getLastname());
 							}
 						}
 			    	}
@@ -459,6 +475,8 @@ public class MediaTUMTransformation {
 		    	}
 		    }
 		    
+		    temp.addCitation(ref.marshal());
+		    
 		}
 	}
 	
@@ -517,10 +535,8 @@ public class MediaTUMTransformation {
 	private Date getDate(Node node) {
 		Date date = null;
 		String tmps = node.getAttribute("proj-beginn"); // or use "proj-end"?
-		System.out.print("getDate Aufruf ");
 		if (tmps == null || tmps.length()<1) {
 			tmps = node.getAttribute("year"); // for publications
-			System.out.println("Year " + tmps);
 		}
 
 		if (tmps!=null && tmps.length()>0) {

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.sociotech.communitymashup.source.mendeley.transformation;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import org.sociotech.communitymashup.source.mendeley.apiwrapper.elements.Mendele
 import org.sociotech.communitymashup.source.mendeley.apiwrapper.elements.MendeleyUsersGroup;
 import org.sociotech.communitymashup.source.mendeley.meta.MendeleyTags;
 import org.sociotech.communitymashup.source.mendeley.properties.MendeleyProperties;
+import org.sociotech.mashupsync.literaturereference.LiteratureReference;
 
 /**
  * Transforms results from the Mendeley api wrapper into CommunityMashup objects.
@@ -206,6 +208,7 @@ public class MendeleyTransformation {
 		}
 		
 		DataFactory factory = DataFactory.eINSTANCE;
+		LiteratureReference ref = new LiteratureReference();
 		
 		// create new content object
 		Content docContent = factory.createContent();
@@ -220,6 +223,7 @@ public class MendeleyTransformation {
 		
 		// add it
 		docContent = source.add(docContent, document.getId());
+		ref.setTitle(document.getTitle());
 		
 		if(docContent == null)
 		{
@@ -280,6 +284,9 @@ public class MendeleyTransformation {
 		if(addedDate != null)
 		{
 			docContent.setCreated(addedDate);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(addedDate);
+			ref.setYear(calendar.get(Calendar.YEAR));
 		}
 		
 		// add files
@@ -340,6 +347,17 @@ public class MendeleyTransformation {
 		{
 			addMendeleyEditors(docContent, document.getEditors(), addedDate);			
 		}
+		
+		for(MendeleyAuthor a : document.getAuthors()) {
+			ref.addAuthor(a.getFirst_name(), a.getLast_name());
+		}
+		
+		for(MendeleyEditor e : document.getEditors()) {
+			ref.addAuthor(e.getForename(), e.getSurname());
+		}
+		
+		// assign literature reference
+		docContent.addCitation(ref.marshal());
 	}
 	
 	/**

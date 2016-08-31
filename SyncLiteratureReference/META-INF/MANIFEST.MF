@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LiteratureReference
+Bundle-SymbolicName: SyncLiteratureReference
+Bundle-Version: 0.0.1
+Bundle-ClassPath: literaturereference0.0.1.jar
+Export-Package: 
+ org.sociotech.mashupsync.literaturereference;version="0.0.1";uses:="javax.xml.bind.annotation"
+Import-Package: javax.xml.bind,
+ javax.xml.bind.annotation
+Tool: Bnd-2.0.0.20121004-062124
+Created-By: 1.8.0_03-Ubuntu (Oracle Corporation)
+Bnd-LastModified: 1472628243240

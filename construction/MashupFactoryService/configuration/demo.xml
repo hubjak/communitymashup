@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ASCII"?>
+<application:MashupContainer xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:application="http://application.cscm.communitymashup.de">
+	<mashups name="DemoMashup" logLevel="DEBUG">
+		<configuration>
+			<properties Key="updateIntervall" Value="60000" />
+		</configuration>
+		<sources bundleId="org.sociotech.communitymashup.source.MediaTUMSourceService"
+			name="mediatumsrc" ident="mediatumsrc">
+			<configuration>
+			  <properties Key="baseUrl"
+			Value="http://athene-forschung.rz.unibw-muenchen.de/services/export/node/92526" />
+			  <properties Key="createAuthorPersons" Value="true" />
+			  <properties Key="addInstituteAsTag" Value="true" />
+			  <properties Key="createEditorPersons" Value="false" />
+			  <properties Key="minYear" Value="2008" />
+			</configuration>
+		</sources>
+		
+		<sources bundleId="org.sociotech.communitymashup.source.MendeleySourceService"
+			name="mendeleysrc" ident="mendeleysrc">
+			<configuration>
+			  <properties Key="addPrivateGroups" Value="true" />
+			  <properties Key="addPublicGroups" Value="false" />
+			  <properties Key="addGroupDocuments" Value="true" />
+			  <properties Key="createAccountOwner" Value="true" />
+			  <properties Key="createEditorPersons" Value="false" />
+			  <properties Key="addAuthoredPublications" Value="false" />
+			  <properties Key="attachFiles" Value="false" />
+			  <properties Key="createGroupOrganisations" Value="false" />
+			  <properties Key="removeHtml" Value="false" />
+			  <properties Key="removeNonHtmlAnd" Value="false" />
+			  <properties Key="uiAuthentication" Value="true" />
+			  <properties Key="clientID" Value="176" />
+			  <properties Key="clientSecret" Value="0wz55Ju{h6DFN[\8" />
+			  <properties Key="authorizationUrl" Value="/auth/402173" />
+			  <properties Key="accessToken" Value="MSwxNDU3MzYzNjUxNTY0LDEyNjMwLDE3NixhbGwsLFZiaml2WTlOTlRvcUNhZUJiVmszS05qM1JWWQ" />
+			  <properties Key="accessTokenExpiration" Value="1457363651579" />
+			  <properties Key="refreshToken" Value="MSwxMjYzMCwxNzYsYWxsLCwsLHhnVk9wak5FeGtxUHIwYUNrd19uNUFtLXRWbw" />
+			  <properties Key="restrictPrivateGroupsTo" Value="CSCM" />
+			</configuration>
+		</sources>
+		
+		<interfaces xsi:type="application:RESTInterface" urlSuffix="" />
+		
+	</mashups>
+</application:MashupContainer>
