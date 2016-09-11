@@ -371,7 +371,7 @@ public abstract class SourceServiceFacadeImpl implements SourceServiceFacade, Lo
 		}
 		catch (Exception e) {
 			log("Error while filling data set in source ." + source.getName() + " (" + e.getMessage() + ")", LogService.LOG_ERROR);
-			//e.printStackTrace();
+			e.printStackTrace();
 			source.setState(SourceState.ERROR);
 			return;
 		}

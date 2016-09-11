@@ -126,7 +126,8 @@ public class LiteratureReference {
 	}
 	
 	public void addAuthor(String firstname, String lastname) {
-		this.authors.add(new Author(firstname, lastname));
+		if(lastname != null && lastname.length() > 0)
+			this.authors.add(new Author(firstname, lastname));
 	}
 	
 	public int getYear() {

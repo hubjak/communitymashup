@@ -348,10 +348,12 @@ public class MendeleyTransformation {
 			addMendeleyEditors(docContent, document.getEditors(), addedDate);			
 		}
 		
+		if(document.getAuthors() != null)
 		for(MendeleyAuthor a : document.getAuthors()) {
 			ref.addAuthor(a.getFirst_name(), a.getLast_name());
 		}
 		
+		if(document.getEditors() != null)
 		for(MendeleyEditor e : document.getEditors()) {
 			ref.addAuthor(e.getForename(), e.getSurname());
 		}
