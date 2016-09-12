@@ -11,3 +11,4 @@ Import-Package: javax.xml.bind,
 Tool: Bnd-2.0.0.20121004-062124
 Created-By: 1.8.0_03-Ubuntu (Oracle Corporation)
 Bnd-LastModified: 1472628243240
+Require-Bundle: org.eclipse.swt
