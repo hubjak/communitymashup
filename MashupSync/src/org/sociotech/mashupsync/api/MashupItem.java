@@ -8,6 +8,11 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name="items")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MashupItem {
+
+	private final static String TYPE_METATAG = "data:MetaTag",
+			TYPE_CONTENT = "data:Content",
+			KEY_SOURCE_PREFIX = "org.sociotech.communitymashup.source.";
+	
 	@XmlAttribute
 	private String ident;
 	
@@ -42,6 +47,7 @@ public class MashupItem {
 		return key;
 	}
 
+
 	public void setKey(String key) {
 		this.key = key;
 	}
@@ -73,6 +79,15 @@ public class MashupItem {
 	public void setStringValue(String stringValue) {
 		this.stringValue = stringValue;
 	}
+	
+	public boolean isMetaTag() {
+		return this.getType().equals(TYPE_METATAG);
+	}
+	
+	public boolean isContent() {
+		return this.getType().equals(TYPE_CONTENT);
+	}
+
 
 	public MashupItem() {
 		

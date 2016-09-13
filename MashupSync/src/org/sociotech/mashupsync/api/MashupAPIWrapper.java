@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.bind.Element;
 import javax.xml.bind.JAXBContext;
@@ -17,11 +18,7 @@ public class MashupAPIWrapper {
 	
 	private String baseUrl;
 	private MashupGenericIndex contentIndex;
-	private MashupItem metaTagIndex;
-	private MashupGenericIndex contents;
  
-	private final static String TYPE_METATAG = "data:MetaTag",
-			KEY_SOURCE_PREFIX = "org.sociotech.communitymashup.source.";
 	
 	public MashupAPIWrapper() {
 		
@@ -52,6 +49,10 @@ public class MashupAPIWrapper {
 	
 	public void setUrl(String url) {
 		this.baseUrl = url;
+	}
+	
+	public List<MashupItem> getItems() {
+		return this.contentIndex.any;
 	}
 	
 	public String getUrl() {
