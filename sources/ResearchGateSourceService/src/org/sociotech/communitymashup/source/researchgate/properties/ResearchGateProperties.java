@@ -12,7 +12,6 @@ public class ResearchGateProperties {
 	public static final String API_URL_PROPERTY_DEFAULT = "https://www.researchgate.net/";
 
 	public static final String API_CACHE_FILE_PREFIX_PROPERTY	= "apiCacheFilePrefix";
-	
 
 	/**
 	 * If this property is set to true persons for document authors will be created. 
@@ -28,8 +27,9 @@ public class ResearchGateProperties {
 	
 	
 	/**
-	 * A comma-separated list of ResearchGate department IDs (researchgate.net/institution/***)
+	 * A comma-separated list of ResearchGate department IDs (researchgate.net/institution/<INST>/department/<DEP>)
 	 * whose members should be searched for publications.
+	 * Format: <INST1>/<DEP1>,<INST2>/<DEP2>,...
 	 */
 	public static final String INCLUDE_DEPARTMENTS_PROPERTY = "includeDepartments";
 	public static final String INCLUDE_DEPARTMENTS_DEFAULT = "";
@@ -41,13 +41,6 @@ public class ResearchGateProperties {
 	 */
 	public static final String INCLUDE_PERSONS_PROPERTY = "includePersons";
 	public static final String INCLUDE_PERSONS_DEFAULT = "";
-	
-	
-	/**
-	 * If this property is set only objects with year => minYear will be imported. 
-	 */
-	public static final String MIN_YEAR_PROPERTY 	= "minYear";
-	public static final String MIN_YEAR_DEFAULT 	= "";
 	
 	/**
 	 * If this property is set to true organizations will be added as organization objects.

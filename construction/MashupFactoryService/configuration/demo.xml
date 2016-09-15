@@ -5,7 +5,7 @@
 		<configuration>
 			<properties Key="updateIntervall" Value="60000" />
 		</configuration>
-		<sources bundleId="org.sociotech.communitymashup.source.MediaTUMSourceService"
+		<!-- <sources bundleId="org.sociotech.communitymashup.source.MediaTUMSourceService"
 			name="mediatumsrc" ident="mediatumsrc">
 			<configuration>
 			  <properties Key="baseUrl"
@@ -38,6 +38,15 @@
 			  <properties Key="accessTokenExpiration" Value="1457363651579" />
 			  <properties Key="refreshToken" Value="MSwxMjYzMCwxNzYsYWxsLCwsLHhnVk9wak5FeGtxUHIwYUNrd19uNUFtLXRWbw" />
 			  <properties Key="restrictPrivateGroupsTo" Value="CSCM" />
+			</configuration>
+		</sources>
+		-->
+		<sources bundleId="org.sociotech.communitymashup.source.ResearchGateSourceService"
+			name="researchgate" ident="researchgatesrc">
+			<configuration>
+			  <!-- <properties Key="includeDepartments" Value="Universitaet_der_Bundeswehr_Muenchen/Fakultaet_fuer_Informatik" />-->
+			  <properties Key="includePersons" Value="Michael_Koch" />
+			  
 			</configuration>
 		</sources>
 		

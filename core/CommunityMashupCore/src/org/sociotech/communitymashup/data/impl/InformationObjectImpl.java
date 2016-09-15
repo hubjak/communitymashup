@@ -1365,6 +1365,17 @@ public abstract class InformationObjectImpl extends ItemImpl implements Informat
 		{
 			return null;
 		}
+		
+		// abort if citation already exists
+		EList<Citation> existingCitations = this.getCitations();
+		if(existingCitations != null) {
+			for(Citation existing : existingCitations) {
+				if(citationData.equalsIgnoreCase(existing.getCitationData())) {
+					// return already existing
+					return existing;
+				}
+			}		
+		}
 	
 		// create citation object
 		Citation citation = dataFactory.createCitation();

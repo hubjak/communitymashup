@@ -19,8 +19,7 @@ import org.sociotech.communitymashup.data.DataSet;
 import org.sociotech.communitymashup.data.Person;
 import org.sociotech.communitymashup.source.impl.SourceServiceFacadeImpl;
 import org.sociotech.communitymashup.source.researchgate.apiwrapper.ResearchGateAPIWrapper;
-import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.Attribute;
-import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.Node;
+import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.*;
 import org.sociotech.communitymashup.source.researchgate.properties.ResearchGateProperties;
 import org.sociotech.communitymashup.source.researchgate.transformation.ResearchGateTransformation;
 
@@ -60,14 +59,10 @@ public class ResearchGateSourceService extends SourceServiceFacadeImpl {
 		if(initialized)
 		{
 			// get api base url from configuration
-			String baseUrl = source.getPropertyValueElseDefault(ResearchGateProperties.API_URL_PROPERTY,ResearchGateProperties.API_URL_PROPERTY_DEFAULT);
-			
-			// get api cache file prefix from configuration
-			// just for debugging purposes
-			String cacheFilePrefix = source.getPropertyValueElseDefault(ResearchGateProperties.API_CACHE_FILE_PREFIX_PROPERTY,null);						
+			String baseUrl = source.getPropertyValueElseDefault(ResearchGateProperties.API_URL_PROPERTY, ResearchGateProperties.API_URL_PROPERTY_DEFAULT);
 			
 			// create api wrapper
-			api = new ResearchGateAPIWrapper(baseUrl, cacheFilePrefix, this);
+			api = new ResearchGateAPIWrapper(baseUrl, null, this);
 			
 			// create transformation
 			transformation = new ResearchGateTransformation(this, api);
@@ -89,22 +84,13 @@ public class ResearchGateSourceService extends SourceServiceFacadeImpl {
 		
 		log("fillDataSet ...", LogService.LOG_DEBUG);
 		
-		// get Persons and References from API 
-		List list = api.getAllObjects();
-		if (list == null) {
-			log("Could not get data from MediaTUM", LogService.LOG_ERROR);
-			return;
-		}
-		lastUpdated = new Date();
-				
-		log("Got "+list.size()+" objects from MediaTUM", LogService.LOG_DEBUG);
+		// get the user and department IDs to retrieve contents from
+		String[] users = source.getPropertyValueElseDefault(ResearchGateProperties.INCLUDE_PERSONS_PROPERTY, ResearchGateProperties.INCLUDE_PERSONS_DEFAULT)
+				.split(",");
+		String[] departments = source.getPropertyValueElseDefault(ResearchGateProperties.INCLUDE_DEPARTMENTS_PROPERTY, ResearchGateProperties.INCLUDE_DEPARTMENTS_DEFAULT)
+				.split(",");
 		
-		try {
-			// transform and add result
-			transformation.transformAndAddObjects(list);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		transformation.addUsersAndDepartments(users, departments);
 						
 	}
 	
@@ -115,29 +101,8 @@ public class ResearchGateSourceService extends SourceServiceFacadeImpl {
 	@Override
 	protected void updateDataSet() {
 		
-		super.updateDataSet();
 		
-		log("updateDataSet ...", LogService.LOG_DEBUG);
-		// do not update if lastUpdated < 1 day
-		if (lastUpdated.getTime() + 24L*60L*60L*1000L > (new Date()).getTime()) 
-			return;
-		
-		// get Persons and References from API 
-		List list = api.getAllObjects();
-		if (list == null) {
-			log("Could not get data from MediaTUM", LogService.LOG_ERROR);
-			return;
-		}
-				
-		log("Got "+list.size()+" objects from MediaTUM", LogService.LOG_DEBUG);
-		
-		try {
-			// transform and add result
-			transformation.transformAndAddObjects(list, lastUpdated);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+						
 	}
 
 	
