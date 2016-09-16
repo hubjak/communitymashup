@@ -8,8 +8,11 @@ import org.sociotech.mashupsync.api.MashupAPIWrapper;
 import org.sociotech.mashupsync.data.MashupCitationIndex;
 import org.sociotech.mashupsync.data.MashupItem;
 import org.sociotech.mashupsync.data.MashupMetaTagIndex;
+import org.sociotech.mashupsync.data.SyncResult;
 import org.sociotech.mashupsync.exceptions.EmptyMashupException;
+import org.sociotech.mashupsync.gui.ProgressListener;
 import org.sociotech.mashupsync.literaturereference.LiteratureReference;
+import org.sociotech.mashupsync.normalization.DefaultNormalizer;
 import org.sociotech.mashupsync.sync.SyncMethod;
 
 public class MashupSyncFacade {
@@ -28,25 +31,49 @@ public class MashupSyncFacade {
 		return this.itemIndex.get(identifier);		
 	}
 	
+	/**
+	 * Chooses the synchronization strategy.
+	 * @param method Synchronization method
+	 */
 	public void setSyncMethod(SyncMethod method) {
 		this.method = method;
 	}
 	
+	/**
+	 * Initializes the API Wrapper with the given URL and validates the CommunityMashup.
+	 * @param baseUrl The CommunityMashup base URL
+	 * @throws Exception
+	 */
 	public void init(String baseUrl) throws Exception {
 		api.setUrl(baseUrl);
 		api.connect();
 		
 		if(api.getCitationIndex().getCitations().size() == 0)
 			throw new EmptyMashupException();
-	}
+	}	
 	
-	
-	public void synchronize(SyncConfiguration config) {		
+	/**
+	 * Initializes the data structures according to the configuration and
+	 * starts the selected algorithm.
+	 * 
+	 * @param config Configuration of the synchronization (e.g. passed by GUI)
+	 * @param progressListener The ProgressListener the algorithm should report the progress to (e.g. GUI).
+	 * @return 
+	 */
+	public SyncResult synchronize(SyncConfiguration config, ProgressListener progressListener) {		
+		if(this.method == null)
+			throw new IllegalStateException("No sync algorithm selected.");
+		
 		HashMap<String, LiteratureReference> contents = new HashMap<>();
 		HashMap<String, List<LiteratureReference>> sources = new HashMap<>();
 		
+		LiteratureReference ref;
+		
 		for(MashupCitationIndex.MashupCitation item : api.getCitationIndex().getCitations()) {
-			contents.put(item.getContentIdent(), LiteratureReference.fromXml(item.getCitationData()));
+			ref = LiteratureReference.fromXml(item.getCitationData());
+			
+			if(ref.getYear() >= config.getMinYear())
+				contents.put(item.getContentIdent(), ref);
 		}
 		
 		for(MashupMetaTagIndex.MashupMetaTag item : api.getMetaTagIndex().getMetaTags()) {
@@ -54,10 +81,18 @@ public class MashupSyncFacade {
 				LinkedList<LiteratureReference> refs = new LinkedList<>();
 				
 				for(String ident : item.getContentIdents())
-					refs.add(contents.get(ident));
+					if(contents.get(ident) != null) {
+						refs.add(contents.get(ident));
+						contents.get(ident).setSource(item.getName());
+					}
 				
 				sources.put(item.getName(), refs);
 			}
 		}
+		
+		if(progressListener == null)
+			return this.method.synchronize(contents, sources, config);
+		else
+			return this.method.synchronize(contents, sources, config, progressListener);
 	}
 }

@@ -3,7 +3,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.sociotech.mashupsync.SyncConfiguration;
-import org.sociotech.mashupsync.data.MashupItem;
 import org.sociotech.mashupsync.data.SyncResult;
 import org.sociotech.mashupsync.gui.ProgressListener;
 import org.sociotech.mashupsync.literaturereference.LiteratureReference;

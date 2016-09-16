@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.graphics.Point;
@@ -24,6 +25,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.sociotech.mashupsync.MashupSyncFacade;
 import org.sociotech.mashupsync.SyncConfiguration;
+import org.sociotech.mashupsync.data.SyncResult;
 import org.sociotech.mashupsync.exceptions.*;
 import org.eclipse.swt.widgets.List;
 
@@ -32,6 +34,7 @@ public class MainWindow implements ProgressListener {
 	private Shell shell;
 	private Display display;
 	private MashupSyncFacade facade;
+	private ProgressBar syncProgress;
 	private int itemsProcessed;
 	private int itemsTotal;
 	
@@ -51,11 +54,12 @@ public class MainWindow implements ProgressListener {
         this.display = new Display();
         this.shell = new Shell(display);
         
+        final MainWindow window = this;
         final MashupSyncFacade facade = facade_;
         final Button btnSynchronize, btnAddSource, btnDeleteSources, btnRadioComprehensive, btnRadioPersonal, btnLoad;
         final List sourcesList;
         final Group modeGrp, sourcesGrp, nameGrp, minYearGrp;
-        final Composite sourcesGrpButtons;
+        final Composite sourcesGrpButtons, syncBtnProgress;
         final Label lbl1, lbl2;
         final Text txtUrl, txtSource, txtFirstName, txtLastName, txtMinYear;
         
@@ -132,9 +136,7 @@ public class MainWindow implements ProgressListener {
         
         txtMinYear = new Text(minYearGrp, SWT.BORDER);
         txtMinYear.setLayoutData(new RowData(414, SWT.DEFAULT));
-        txtMinYear.setText("2012");
-
-        
+        txtMinYear.setText("2012");        
 
         lbl1 = new Label(nameGrp, SWT.NONE);
         lbl1.setText("Vorname:");
@@ -144,9 +146,17 @@ public class MainWindow implements ProgressListener {
         lbl2.setText("Nachname:");
         txtLastName = new Text(nameGrp, SWT.BORDER);
         txtLastName.setLayoutData(new RowData(414, SWT.DEFAULT));
+        
+        syncBtnProgress = new Composite(shell, SWT.NONE);
+        syncBtnProgress.setLayout(new RowLayout(SWT.HORIZONTAL));               
 
-        btnSynchronize = new Button(shell, SWT.NONE);
+        btnSynchronize = new Button(syncBtnProgress, SWT.NONE);
         btnSynchronize.setText("Synchronisieren");
+        
+        this.syncProgress = new ProgressBar(syncBtnProgress, SWT.NONE);
+        this.syncProgress.setLayoutData(new RowData(300, 34));
+        this.syncProgress.setVisible(false);
+        final ProgressBar syncProgress = this.syncProgress;
 
         SelectionAdapter radioSelAdapter = new SelectionAdapter() {
         	@Override
@@ -273,7 +283,7 @@ public class MainWindow implements ProgressListener {
         btnSynchronize.addSelectionListener(new SelectionAdapter() {
         	@Override
         	public void widgetSelected(SelectionEvent e) {
-	        	SyncConfiguration config = new SyncConfiguration();
+	        	final SyncConfiguration config = new SyncConfiguration();
 	        	
 	        	config.setFirstName(txtFirstName.getText().trim());
 	        	config.setLastName(txtLastName.getText().trim());
@@ -301,8 +311,24 @@ public class MainWindow implements ProgressListener {
 	        		return;
 	        	}
 	        	
-	        	facade.synchronize(config);
-	        			
+	        	syncProgress.setVisible(true);
+	        	syncProgress.setSelection(0);
+	        	btnSynchronize.setEnabled(false);
+	        	
+	        	new Thread() {
+    				public void run() {
+	    	        	final SyncResult result = facade.synchronize(config, window);   	    	        	
+	    	        	
+	        			display.syncExec(new Runnable() {
+	        				public void run() {
+			    	        	syncProgress.setVisible(false);
+			    	        	btnSynchronize.setEnabled(true);
+			    	        	new ResultWindow(result, display);
+	        				}
+	        			});
+    				}
+	        	}.start();
+	        	    			
         	}
         });
         
@@ -325,9 +351,19 @@ public class MainWindow implements ProgressListener {
 	}
 
 	@Override
-	public void reportProgress(int itemsProcessed, int itemsTotal) {
+	public void reportProgress(final int itemsProcessed, final int itemsTotal) {
 		this.itemsProcessed = itemsProcessed;
 		this.itemsTotal = itemsTotal;
+		
+		final ProgressBar progressBar = this.syncProgress;
+		
+		display.syncExec(new Runnable() {
+			public void run() {				
+				progressBar.setSelection((int) ((1.0 * itemsProcessed / itemsTotal) * 100));
+			}
+		});
+		
+		System.out.println(itemsProcessed + " / " + itemsTotal);
 		
 	}
 }

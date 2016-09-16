@@ -23,7 +23,7 @@ public class LiteratureReference {
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlRootElement
-	static class Author {
+	public static class Author {
 		@XmlAttribute
 		private String firstName;
 		
@@ -54,6 +54,10 @@ public class LiteratureReference {
 		public void setLastName(String lastName) {
 			this.lastName = lastName;
 		}		
+		
+		public String toString() {
+			return this.lastName + ", " + this.firstName;
+		}
 	}
 	
 	private String title;
@@ -64,9 +68,8 @@ public class LiteratureReference {
 	
 	@XmlAttribute
 	private int year;
-	
 	private String source;
-	
+	private LiteratureReference next;
 	private final static String DEFAULT_CHARSET = "UTF-8";
 	
 	public LiteratureReference(String title, int year) {
@@ -124,7 +127,7 @@ public class LiteratureReference {
 	}
 	
 	public void addAuthor(String firstname, String lastname) {
-		if(lastname != null && lastname.length() > 0)
+		if(lastname != null && lastname.length() > 0 && firstname != null && firstname.length() > 0)
 			this.authors.add(new Author(firstname, lastname));
 	}
 	
@@ -143,6 +146,38 @@ public class LiteratureReference {
 	public void setSource(String source) {
 		this.source = source;
 	}
+
+	public LiteratureReference getNext() {
+		return next;
+	}
+
+	public void setNext(LiteratureReference next) {
+		if(this.next == null)
+			this.next = next;
+		else
+			this.next.setNext(next);
+	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		if(this.getAuthors().size() > 0)
+			sb.append(this.getAuthors().getFirst());
+		else
+			sb.append("Kein Autor");
+		
+		for(int i = 1; i < this.getAuthors().size(); i++) {
+			sb.append("; ");
+			sb.append(this.getAuthors().get(i));
+		}
+		
+		sb.append(": ");
+		sb.append(this.getTitle());
+		sb.append(" (");
+		sb.append(this.getYear());
+		sb.append(")");
+		
+		return sb.toString();
+	}
 	
 }

@@ -1,5 +1,7 @@
 package org.sociotech.mashupsync.normalization;
 
+import java.text.Normalizer;
+
 import org.sociotech.mashupsync.literaturereference.LiteratureReference;
 
 /**
@@ -11,10 +13,42 @@ import org.sociotech.mashupsync.literaturereference.LiteratureReference;
  */
 
 public class DefaultNormalizer implements NormalizationMethod {
-
+	
+	private final static String[] abbr_search = {
+		"z\\.( )*?B\\.", "etc\\.", "et al\\.", "usw.", 
+	};
+	
+	private final static String[] abbr_replace = {
+		"zum beispiel", "et cetera", "et alii", "und so weiter"
+	};
+	
 	@Override
 	public String normalize(LiteratureReference reference) {
+		// convert to lower case
 		String tmp = reference.getTitle().toLowerCase();
+		
+		// Convert to UTF-8 normal form NFD
+		tmp = Normalizer.normalize(tmp, Normalizer.Form.NFD);
+		
+		// Expand common abbreviations
+		for(int i = 0; i < abbr_search.length; i++)
+			tmp = tmp.replaceAll(abbr_search[i], abbr_replace[i]);
+		
+		// Replace any kind of dashes with spaces
+		tmp = tmp.replaceAll("\\p{Pd}", " ");
+		
+		// Replace slashes, pluses and stars with spaces
+		tmp = tmp.replaceAll("[\\/\\\\+\\*]", " ");
+		
+		// Remove any remaining non-alphanumeric characters
+		tmp = tmp.replaceAll("[^ a-zA-Z0-9]", "");
+		
+		// Reduce blocks of more than one space to a single space
+		tmp = tmp.replaceAll("\\s{2,}", " ");
+				
+		// Trim and return
+		return tmp.trim();
+		
 	}
 
 }
