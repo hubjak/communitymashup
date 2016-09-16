@@ -2,6 +2,7 @@ package org.sociotech.mashupsync.literaturereference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
+import java.text.Normalizer;
 import java.util.LinkedList;
 
 import javax.xml.bind.JAXBContext;
@@ -57,6 +58,12 @@ public class LiteratureReference {
 		
 		public String toString() {
 			return this.lastName + ", " + this.firstName;
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			return o instanceof Author && ((Author) o).getFirstName().equals(getFirstName()) &&
+					((Author) o).getLastName().equals(getLastName());
 		}
 	}
 	
@@ -127,7 +134,13 @@ public class LiteratureReference {
 	}
 	
 	public void addAuthor(String firstname, String lastname) {
-		if(lastname != null && lastname.length() > 0 && firstname != null && firstname.length() > 0)
+		if(firstname == null || lastname == null) return;
+		
+		firstname = Normalizer.normalize(firstname.trim(), Normalizer.Form.NFC);
+		lastname = Normalizer.normalize(lastname.trim(), Normalizer.Form.NFC);
+		
+		if(lastname.length() > 0 && firstname.length() > 0 &&
+				!this.authors.contains(new Author(firstname, lastname)))
 			this.authors.add(new Author(firstname, lastname));
 	}
 	

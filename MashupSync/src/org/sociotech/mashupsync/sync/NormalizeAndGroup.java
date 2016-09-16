@@ -48,7 +48,7 @@ public class NormalizeAndGroup implements SyncMethod {
 		});
 		
 		mainLoop: for(LiteratureReference ref : sorted) {
-			String normalizedTitle = this.normalizer.normalize(ref);
+			String normalizedTitle = ref.getYear() + " " + this.normalizer.normalize(ref);
 			List<LiteratureReference> entries = map.get(normalizedTitle);
 			
 			System.out.println(normalizedTitle);

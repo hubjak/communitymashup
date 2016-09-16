@@ -48,7 +48,7 @@ public class MashupSyncFacade {
 		api.setUrl(baseUrl);
 		api.connect();
 		
-		if(api.getCitationIndex().getCitations().size() == 0)
+		if(api.getCitationIndex() == null || api.getCitationIndex().getCitations().size() == 0)
 			throw new EmptyMashupException();
 	}	
 	
