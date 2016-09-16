@@ -23,7 +23,7 @@ public class LiteratureReference {
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlRootElement
-	private static class Author {
+	static class Author {
 		@XmlAttribute
 		private String firstName;
 		
@@ -64,6 +64,9 @@ public class LiteratureReference {
 	
 	@XmlAttribute
 	private int year;
+	
+	private String source;
+	
 	private final static String DEFAULT_CHARSET = "UTF-8";
 	
 	public LiteratureReference(String title, int year) {
@@ -131,6 +134,14 @@ public class LiteratureReference {
 	
 	public void setYear(int year) {
 		this.year = year;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 	
 	

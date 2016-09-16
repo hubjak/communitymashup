@@ -11,6 +11,7 @@ public class SyncConfiguration {
 	private Mode syncMode;
 	private String firstName;
 	private String lastName;
+	private int minYear;
 	private List<String> sourceIdentifiers;
 	
 	public SyncConfiguration() {
@@ -55,5 +56,13 @@ public class SyncConfiguration {
 	
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public int getMinYear() {
+		return minYear;
+	}
+
+	public void setMinYear(int minYear) {
+		this.minYear = minYear;
 	}
 }

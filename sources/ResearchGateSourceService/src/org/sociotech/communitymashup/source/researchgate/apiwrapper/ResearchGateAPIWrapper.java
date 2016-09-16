@@ -188,7 +188,7 @@ public class ResearchGateAPIWrapper {
 		int page = 1;
 		int pages = 1;
 		
-		do {
+		odo: do {
 			String html = getURL(this.baseUrl + "profile/" + user + "/publications?sorting=newest&page=" + page);
 			Matcher m = REGEX_PROFILE_JSON.matcher(html);
 						
@@ -213,9 +213,9 @@ public class ResearchGateAPIWrapper {
 			JSONArray items = result.getJSONArray("publicationListItems");
 			
 			for(int i = 0; i < items.length(); i++) {
-				if(page == 2) break;
+				if(page == 2) break odo;
 				JSONObject item = items.getJSONObject(i).getJSONObject("data");
-				Publication p = new Publication("rg" + item.getInt("publicationUid"), item.getString("title"));	
+				Publication p = new Publication("rgp_" + item.getInt("publicationUid"), item.getString("title"));	
 				System.out.println("Item " + (i+1) + " of " + items.length() + ": " + p.getTitle());	
 				String pubDetailHTML = getURL(this.baseUrl + item.getString("publicationUrl"));
 				
@@ -226,17 +226,17 @@ public class ResearchGateAPIWrapper {
 				JSONObject pubData = new JSONObject(m2.group(1)).getJSONObject("initState").getJSONObject("publicationData");
 				p.setAbstractText(pubData.get("abstract") instanceof String ? pubData.getString("abstract") : "");
 				p.setCreationDate(pubData.getString("publicationDate"));
+			
+				JSONObject pubAuthors = new JSONObject(m2.group(1)).getJSONObject("initState").getJSONObject("publicationAuthors");
+				JSONArray authors = pubAuthors.getJSONObject(pubAuthors.keys().next()).getJSONArray("loadedItems");
 				
-				/*if(tag.equals(META_TAG_AUTHOR)) {
-					String[] author = m2.group(2).split(" ");
-					p.addAuthor(String.join(" ", Arrays.copyOfRange(author, 0, author.length - 1)), author[author.length - 1]);
-				} else if(tag.equalsIgnoreCase(META_TAG_PUBLICATION_DATE)) {
-					p.setCreationDate(m2.group(2));
-				} else {
-					p.addTag(m2.group(1), m2.group(2));
-				}*/
-				
-		
+				// add all authors
+				for(int j = 0; j < authors.length(); j++) {					
+					String[] author = authors.getJSONObject(j).getString("nameOnPublication").split(" ");
+					p.addAuthor(String.join(" ", Arrays.copyOfRange(author, 0, author.length - 1)), author[author.length - 1], 
+							authors.getJSONObject(j).has("accountID") ? "rga_" 
+					+ authors.getJSONObject(j).getInt("accountId") : null);
+				}
 				
 				publications.add(p);
 

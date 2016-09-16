@@ -37,8 +37,8 @@ public class Publication {
 		return this.metaTags.get(key);
 	}
 	
-	public void addAuthor(String firstname, String lastname) {
-		this.authors.add(new Author(firstname, lastname));
+	public void addAuthor(String firstname, String lastname, String id) {
+		this.authors.add(new Author(firstname, lastname, id));
 	}
 	
 	public String getTitle() {
@@ -55,7 +55,6 @@ public class Publication {
 	
 	public void setCreationDate(String dateString) {		
 		try {
-			System.out.println(dateString);
 			this.creationDate = DATE_FORMAT.parse(dateString);
 		} catch(Exception e) {e.printStackTrace();};
 	}

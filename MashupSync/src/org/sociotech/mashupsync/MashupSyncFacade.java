@@ -5,14 +5,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.sociotech.mashupsync.api.MashupAPIWrapper;
-import org.sociotech.mashupsync.api.MashupItem;
+import org.sociotech.mashupsync.data.MashupCitationIndex;
+import org.sociotech.mashupsync.data.MashupItem;
+import org.sociotech.mashupsync.data.MashupMetaTagIndex;
 import org.sociotech.mashupsync.exceptions.EmptyMashupException;
+import org.sociotech.mashupsync.literaturereference.LiteratureReference;
+import org.sociotech.mashupsync.sync.SyncMethod;
 
 public class MashupSyncFacade {
 	private MashupAPIWrapper api;
 	private HashMap<String, MashupItem> itemIndex;	
-	private HashMap<String, List<MashupItem>> sourceIndex;
-	private List<String> sources;
+	private SyncMethod method;
 
 	
 	public MashupSyncFacade() {
@@ -25,26 +28,35 @@ public class MashupSyncFacade {
 		return this.itemIndex.get(identifier);		
 	}
 	
+	public void setSyncMethod(SyncMethod method) {
+		this.method = method;
+	}
+	
 	public void init(String baseUrl) throws Exception {
 		api.setUrl(baseUrl);
 		api.connect();
 		
-		if(api.getItems() == null || api.getItems().size() == 0)
+		if(api.getCitationIndex().getCitations().size() == 0)
 			throw new EmptyMashupException();
-		
-		this.itemIndex = new HashMap<String, MashupItem>();
 	}
 	
 	
-	public void synchronize(SyncConfiguration config) {
-		if(this.itemIndex == null)
-			throw new IllegalStateException();
+	public void synchronize(SyncConfiguration config) {		
+		HashMap<String, LiteratureReference> contents = new HashMap<>();
+		HashMap<String, List<LiteratureReference>> sources = new HashMap<>();
 		
-		for(MashupItem item : api.getItems()) {
-			if(item.isContent()) {
-				this.itemIndex.put(item.getIdent(), item);
-			} else if(item.isMetaTag() && config.containsSource(item.getName())) {
+		for(MashupCitationIndex.MashupCitation item : api.getCitationIndex().getCitations()) {
+			contents.put(item.getContentIdent(), LiteratureReference.fromXml(item.getCitationData()));
+		}
+		
+		for(MashupMetaTagIndex.MashupMetaTag item : api.getMetaTagIndex().getMetaTags()) {
+			if(config.containsSource(item.getName())) {
+				LinkedList<LiteratureReference> refs = new LinkedList<>();
 				
+				for(String ident : item.getContentIdents())
+					refs.add(contents.get(ident));
+				
+				sources.put(item.getName(), refs);
 			}
 		}
 	}

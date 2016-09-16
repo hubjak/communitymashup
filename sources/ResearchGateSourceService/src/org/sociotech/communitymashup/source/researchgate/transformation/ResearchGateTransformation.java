@@ -102,6 +102,11 @@ public class ResearchGateTransformation {
 		
 		// go through all objects retrieved from ResearchGate
 		for (Publication p : publications){			
+			// check if document already exists
+			if(source.getContentWithSourceIdent(p.getId()) != null)
+				continue;
+			
+			// citaiton object
 			LiteratureReference ref = new LiteratureReference();
 			
 			// call the factory to create a new object
@@ -126,6 +131,8 @@ public class ResearchGateTransformation {
 			
 			boolean first = true;
 			
+			
+			// add authors and contributors if wished
 			for(Author a : p.getAuthors()) {
 				ref.addAuthor(a.getFirstname(), a.getLastname());
 				
@@ -134,7 +141,7 @@ public class ResearchGateTransformation {
 					continue;
 				}
 				
-				Person person = createPerson(a.getFirstname(), a.getLastname(), new Date());
+				Person person = createPerson(a.getFirstname(), a.getLastname(), a.getID());
 				
 				if(first)
 					content.setAuthor(person);
@@ -144,8 +151,7 @@ public class ResearchGateTransformation {
 				first = false;
 			}
 			
-			content.addCitation(ref.marshal());
-			source.add(content);		
+			content.addCitation(ref.marshal());	
 
 		    
 		}
@@ -175,10 +181,10 @@ public class ResearchGateTransformation {
 	 * 
 	 * @param firstname Firstname of the person
 	 * @param lastname Lastname of the person
-	 * @param creationDate The creation date of the author
+	 * @param id The ResearchGate identifiert of the person
 	 * @return Person object with the given first and lastname
 	 */
-	private Person createPerson(String firstname, String lastname, Date creationDate) {
+	private Person createPerson(String firstname, String lastname, String id) {
 		if(firstname == null || firstname.isEmpty())
 		{
 			// at least a firstname is required
@@ -190,20 +196,26 @@ public class ResearchGateTransformation {
 			// at least a lastname is required
 			return null;
 		}
+		
+		Person p;
+		
+		// check if person already exists
+		if(id != null && (p = source.getPersonWithSourceIdent(id)) != null) {
+			return p;
+		}
 
 		// create new person
 		Person person = factory.createPerson();
-		if(creationDate != null)
-		{
-			person.setCreated(creationDate);
-		}
 		
 		// set the name
 		person.setFirstname(firstname);
 		person.setLastname(lastname);
 		
 		// and add it
-		person = source.add(person);
+		if(id != null)
+			person = source.add(person, id);
+		else
+			person = source.add(person);
 		
 		if(person == null)
 		{

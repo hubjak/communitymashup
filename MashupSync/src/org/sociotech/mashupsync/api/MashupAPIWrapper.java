@@ -6,18 +6,16 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.xml.bind.Element;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+
+import org.sociotech.mashupsync.data.*;
 
 public class MashupAPIWrapper {
 	
 	private String baseUrl;
-	private MashupGenericIndex contentIndex;
+	private MashupMetaTagIndex metaTagIndex;
+	private MashupCitationIndex citationIndex;
  
 	
 	public MashupAPIWrapper() {
@@ -41,18 +39,33 @@ public class MashupAPIWrapper {
 		if(this.baseUrl == null)
 			throw new Exception("No Mashup base URL defined");
 		
-		String contents = readUrl(this.baseUrl + "/");
-		Unmarshaller unmarshaller = JAXBContext.newInstance(MashupGenericIndex.class).createUnmarshaller();
+		// fetch meta tag list
+		String metaTagIndex = readUrl(this.baseUrl + "/getMetaTags");
+		Unmarshaller unmarshaller = JAXBContext.newInstance(MashupMetaTagIndex.class).createUnmarshaller();
+		this.metaTagIndex = (MashupMetaTagIndex) unmarshaller.unmarshal(new StringReader(metaTagIndex));
 		
-		this.contentIndex = (MashupGenericIndex) unmarshaller.unmarshal(new StringReader(contents));
+		// fetch citation list
+		String citations = readUrl(this.baseUrl + "/getCitations");
+		unmarshaller = JAXBContext.newInstance(MashupCitationIndex.class).createUnmarshaller();		
+		this.citationIndex = (MashupCitationIndex) unmarshaller.unmarshal(new StringReader(citations));
 	}
 	
 	public void setUrl(String url) {
 		this.baseUrl = url;
 	}
 	
-	public List<MashupItem> getItems() {
-		return this.contentIndex.any;
+	public MashupCitationIndex getCitationIndex() {
+		if(this.citationIndex == null)
+			throw new IllegalStateException("Contents not yet loaded");
+		
+		return this.citationIndex;
+	}
+	
+	public MashupMetaTagIndex getMetaTagIndex() {
+		if(this.metaTagIndex == null)
+			throw new IllegalStateException("Contents not yet loaded");
+		
+		return this.metaTagIndex;
 	}
 	
 	public String getUrl() {

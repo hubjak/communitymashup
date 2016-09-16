@@ -1,4 +1,4 @@
-package org.sociotech.mashupsync.api;
+package org.sociotech.mashupsync.data;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class MashupItem {
 
 	private final static String TYPE_METATAG = "data:MetaTag",
 			TYPE_CONTENT = "data:Content",
-			KEY_SOURCE_PREFIX = "org.sociotech.communitymashup.source.";
+			TYPE_CITATION = "data:Citation";
 	
 	@XmlAttribute
 	private String ident;
@@ -31,6 +31,9 @@ public class MashupItem {
 	@XmlAttribute
 	private String name;
 	
+	@XmlAttribute
+	private String citationData;
+	
 	public String getName() {
 		return name;
 	}
@@ -46,7 +49,6 @@ public class MashupItem {
 	public String getKey() {
 		return key;
 	}
-
 
 	public void setKey(String key) {
 		this.key = key;
@@ -86,6 +88,18 @@ public class MashupItem {
 	
 	public boolean isContent() {
 		return this.getType().equals(TYPE_CONTENT);
+	}
+	
+	public boolean isCitation() {
+		return this.getType().equals(TYPE_CITATION);
+	}
+	
+	public String getCitationData() {
+		return this.citationData;
+	}
+	
+	public void setCitationData(String citationData) {
+		this.citationData = citationData;
 	}
 
 

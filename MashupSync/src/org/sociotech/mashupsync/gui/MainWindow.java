@@ -4,6 +4,7 @@ package org.sociotech.mashupsync.gui;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import org.eclipse.swt.widgets.Group;
 
@@ -27,11 +28,14 @@ import org.sociotech.mashupsync.exceptions.*;
 import org.eclipse.swt.widgets.List;
 
 
-public class MainWindow {
-	private static Shell shell;
-	private static Display display;
+public class MainWindow implements ProgressListener {
+	private Shell shell;
+	private Display display;
+	private MashupSyncFacade facade;
+	private int itemsProcessed;
+	private int itemsTotal;
 	
-	private static void displayError(final String errorMsg) {
+	private void displayError(final String errorMsg) {
 		display.syncExec(new Runnable() {
 			public void run() {				
 				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING);
@@ -43,19 +47,17 @@ public class MainWindow {
 		});
 	}
 	
-    public static void main(String[] args) {
-        display = new Display();
-        shell = new Shell(display);
-        Shell shell2 = new Shell(display);
-        shell2.pack();
-        shell2.open();
-        final MashupSyncFacade api = new MashupSyncFacade();
+    public MainWindow(MashupSyncFacade facade_) {
+        this.display = new Display();
+        this.shell = new Shell(display);
+        
+        final MashupSyncFacade facade = facade_;
         final Button btnSynchronize, btnAddSource, btnDeleteSources, btnRadioComprehensive, btnRadioPersonal, btnLoad;
         final List sourcesList;
-        final Group modeGrp, sourcesGrp, nameGrp;
+        final Group modeGrp, sourcesGrp, nameGrp, minYearGrp;
         final Composite sourcesGrpButtons;
         final Label lbl1, lbl2;
-        final Text txtUrl, txtSource, txtFirstName, txtLastName;
+        final Text txtUrl, txtSource, txtFirstName, txtLastName, txtMinYear;
         
         shell.setMinimumSize(new Point(500, 570));
         shell.setText("CommunityMashup Synchronisation");
@@ -115,14 +117,23 @@ public class MainWindow {
         
         btnRadioPersonal = new Button(modeGrp, SWT.RADIO);
         btnRadioPersonal.setSelection(true);
-        btnRadioPersonal.setText("Persönlich");   
-        
-        
+        btnRadioPersonal.setText("Persönlich");           
         
         nameGrp = new Group(shell, SWT.SHADOW_IN);
         nameGrp.setLayoutData(new RowData(430, SWT.DEFAULT));
         nameGrp.setText("Zu suchender Autorenname");
         nameGrp.setLayout(new RowLayout(SWT.VERTICAL));
+        
+        minYearGrp = new Group(shell, SWT.SHADOW_IN);
+        minYearGrp.setLayoutData(new RowData(430, SWT.DEFAULT));
+        minYearGrp.setText("Berücksichtige Publikationen ab dem Jahr");
+        minYearGrp.setLayout(new RowLayout(SWT.VERTICAL));
+        minYearGrp.setVisible(false);
+        
+        txtMinYear = new Text(minYearGrp, SWT.BORDER);
+        txtMinYear.setLayoutData(new RowData(414, SWT.DEFAULT));
+        txtMinYear.setText("2012");
+
         
 
         lbl1 = new Label(nameGrp, SWT.NONE);
@@ -167,7 +178,7 @@ public class MainWindow {
     			new Thread() {
     				public void run() {
     					try {
-    	            		api.init(input);
+    	            		facade.init(input);
     	            		
     	            		display.syncExec(new Runnable() {
     	            			public void run() {
@@ -177,6 +188,7 @@ public class MainWindow {
     	    	                    btnSynchronize.setVisible(true);  
     	    	                    nameGrp.setVisible(true);
     	    	                    btnLoad.setEnabled(true);
+    	    	                    minYearGrp.setVisible(true);
 
     	    	    		        btnLoad.setText("Laden");
     	    	    		        btnLoad.setEnabled(true);
@@ -195,6 +207,8 @@ public class MainWindow {
     	    		        else
     	    		        	displayError(ex.getClass().getName() + " beim Verarbeiten der Daten.");
     	    		            	    		        
+    	    		        ex.printStackTrace();
+    	    		        
     	    		        display.syncExec(new Runnable() {
     	            			public void run() {
     	            				sourcesGrp.setVisible(false);
@@ -203,6 +217,7 @@ public class MainWindow {
     	    	                    btnSynchronize.setVisible(false);  
     	    	                    nameGrp.setVisible(false);
     	    	                    btnLoad.setEnabled(false);
+    	    	                    minYearGrp.setVisible(false);
 
     	    	    		        btnLoad.setText("Laden");
     	    	    		        btnLoad.setEnabled(true);
@@ -221,7 +236,7 @@ public class MainWindow {
         	@Override
         	public void widgetSelected(SelectionEvent e) {
         		String input = txtSource.getText().trim();
-        		java.util.List<String> selection = Arrays.asList(sourcesList.getSelection());
+        		java.util.List<String> selection = Arrays.asList(sourcesList.getItems());
         		
         		if(input.length() == 0) {
         			displayError("Der Name des Source-Tags darf nicht leer sein.");
@@ -263,7 +278,16 @@ public class MainWindow {
 	        	config.setFirstName(txtFirstName.getText().trim());
 	        	config.setLastName(txtLastName.getText().trim());
 	        	config.setSyncMode(btnRadioComprehensive.getSelection() ? SyncConfiguration.Mode.COMPREHENSIVE : SyncConfiguration.Mode.PERSONAL);
-	        	config.setSourceIdentifiers(Arrays.asList(sourcesList.getSelection()));
+	        	config.setSourceIdentifiers(Arrays.asList(sourcesList.getItems()));
+	        	
+	        	int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+	        	
+	        	try {
+	        		config.setMinYear(Integer.valueOf(txtMinYear.getText()));
+	        	} catch(NumberFormatException ex) {
+	        		displayError("Bitte geben Sie ein gültiges Mindestjahr an.");
+	        		return;
+	        	}
 	        	
 	        	if(config.getSyncMode() == SyncConfiguration.Mode.PERSONAL && (
 	        			config.getFirstName().length() == 0 || config.getLastName().length() == 0)) {
@@ -272,7 +296,12 @@ public class MainWindow {
 	        	} else if(config.getSourceIdentifiers().size() < 2) {
 	        		displayError("Bitte geben Sie mindestens zwei Source-MetaTags zur Synchronisation an.");
 	        		return;
+	        	} else if(config.getMinYear() < 1900 || config.getMinYear() > currentYear) {
+	        		displayError("Das Mindestjahr muss zwischen 1900 und " + currentYear + " liegen.");
+	        		return;
 	        	}
+	        	
+	        	facade.synchronize(config);
 	        			
         	}
         });
@@ -284,4 +313,21 @@ public class MainWindow {
             if (!display.readAndDispatch()) display.sleep();
         }
     }
+
+	@Override
+	public int getItemsProcessed() {
+		return this.itemsProcessed;
+	}
+
+	@Override
+	public int getItemsTotal() {
+		return this.itemsTotal;
+	}
+
+	@Override
+	public void reportProgress(int itemsProcessed, int itemsTotal) {
+		this.itemsProcessed = itemsProcessed;
+		this.itemsTotal = itemsTotal;
+		
+	}
 }
