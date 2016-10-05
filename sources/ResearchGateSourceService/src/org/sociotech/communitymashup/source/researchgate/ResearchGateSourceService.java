@@ -11,15 +11,12 @@
 package org.sociotech.communitymashup.source.researchgate;
 
 import java.util.Date;
-import java.util.List;
 
 import org.osgi.service.log.LogService;
 import org.sociotech.communitymashup.application.Source;
 import org.sociotech.communitymashup.data.DataSet;
-import org.sociotech.communitymashup.data.Person;
 import org.sociotech.communitymashup.source.impl.SourceServiceFacadeImpl;
 import org.sociotech.communitymashup.source.researchgate.apiwrapper.ResearchGateAPIWrapper;
-import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.*;
 import org.sociotech.communitymashup.source.researchgate.properties.ResearchGateProperties;
 import org.sociotech.communitymashup.source.researchgate.transformation.ResearchGateTransformation;
 
@@ -90,7 +87,7 @@ public class ResearchGateSourceService extends SourceServiceFacadeImpl {
 		String[] departments = source.getPropertyValueElseDefault(ResearchGateProperties.INCLUDE_DEPARTMENTS_PROPERTY, ResearchGateProperties.INCLUDE_DEPARTMENTS_DEFAULT)
 				.split(",");
 		
-		transformation.addUsersAndDepartments(users, departments);
+		transformation.addUsersAndPublications(users, departments);
 						
 	}
 	
@@ -101,7 +98,17 @@ public class ResearchGateSourceService extends SourceServiceFacadeImpl {
 	@Override
 	protected void updateDataSet() {
 		
+		super.updateDataSet();
 		
+		log("fillDataSet ...", LogService.LOG_DEBUG);
+		
+		// get the user and department IDs to retrieve contents from
+		String[] users = source.getPropertyValueElseDefault(ResearchGateProperties.INCLUDE_PERSONS_PROPERTY, ResearchGateProperties.INCLUDE_PERSONS_DEFAULT)
+				.split(",");
+		String[] departments = source.getPropertyValueElseDefault(ResearchGateProperties.INCLUDE_DEPARTMENTS_PROPERTY, ResearchGateProperties.INCLUDE_DEPARTMENTS_DEFAULT)
+				.split(",");
+		
+		transformation.addUsersAndPublications(users, departments);
 						
 	}
 

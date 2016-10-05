@@ -28,6 +28,11 @@ public class ResearchGateTags {
 	public static final String RESEARCHGATE_CHAPTER = "chapter";
 	
 	/**
+	 * Constant string to tag full-texts with
+	 */
+	public static final String RESEARCHGATE_FULLTEXT = "full-text";
+	
+	/**
 	 * Constant string to tag conference papers with
 	 */
 	public static final String RESEARCHGATE_CONFERENCE_PAPER = "conference-paper";
@@ -36,6 +41,12 @@ public class ResearchGateTags {
 	 * Constant string to tag datasets with
 	 */
 	public static final String RESEARCHGATE_DATASET = "dataset";
+	
+
+	/**
+	 * Constant string to tag "other" objects with
+	 */
+	public static final String RESEARCHGATE_OTHER = "other";
 	
 }
 

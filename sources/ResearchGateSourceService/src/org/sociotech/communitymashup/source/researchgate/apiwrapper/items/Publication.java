@@ -11,7 +11,6 @@ public class Publication {
 	// 2016-01-01T00:00:00.000+0000
 	private final static DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ENGLISH);
 
-	
 	private String id;	
 	private String title;	
 	private String abstractText;
@@ -23,7 +22,7 @@ public class Publication {
 	private LinkedList<Author> authors;	
 	
 	public Publication(String id, String title) {
-		this.setId(id);
+		this.setId("rgp_" + id);
 		this.setTitle(title);
 		this.authors = new LinkedList<Author>();
 		this.metaTags = new HashMap<String, String>();
@@ -56,7 +55,7 @@ public class Publication {
 	public void setCreationDate(String dateString) {		
 		try {
 			this.creationDate = DATE_FORMAT.parse(dateString);
-		} catch(Exception e) {e.printStackTrace();};
+		} catch(Exception e) {};
 	}
 	
 	public String getType() {

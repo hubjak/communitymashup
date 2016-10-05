@@ -1,30 +1,19 @@
 package org.sociotech.communitymashup.source.researchgate.transformation;
 
 import java.net.CookieManager;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
 
-import org.eclipse.emf.common.util.EList;
 import org.osgi.service.log.LogService;
 import org.sociotech.communitymashup.data.Content;
 import org.sociotech.communitymashup.data.DataFactory;
-import org.sociotech.communitymashup.data.Document;
-import org.sociotech.communitymashup.data.Email;
-import org.sociotech.communitymashup.data.Citation;
-import org.sociotech.communitymashup.data.Image;
-import org.sociotech.communitymashup.data.Organisation;
 import org.sociotech.communitymashup.data.Person;
-import org.sociotech.communitymashup.data.WebSite;
 import org.sociotech.communitymashup.source.researchgate.ResearchGateSourceService;
 import org.sociotech.communitymashup.source.researchgate.apiwrapper.ResearchGateAPIWrapper;
-import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.*;
+import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.Author;
+import org.sociotech.communitymashup.source.researchgate.apiwrapper.items.Publication;
 import org.sociotech.communitymashup.source.researchgate.meta.ResearchGateTags;
 import org.sociotech.communitymashup.source.researchgate.properties.ResearchGateProperties;
 import org.sociotech.mashupsync.literaturereference.LiteratureReference;
@@ -76,9 +65,9 @@ public class ResearchGateTransformation {
 	 * 
 	 * if configuration says to create author/editor then will create
 	 */
-	public void addUsersAndDepartments(String[] users, String[] departments) {
-		HashSet<String> usersToAdd = new HashSet<>(),
-			pubIDs = new HashSet<>();
+	public void addUsersAndPublications(String[] users, String[] departments) {
+		HashSet<String> usersToAdd = new HashSet<>();
+		
 		LinkedList<Publication> publications = new LinkedList<>();
 		if(users.length > 0 && users[0].length() > 0)
 			usersToAdd.addAll(Arrays.asList(users));
@@ -95,7 +84,7 @@ public class ResearchGateTransformation {
 		for(String user : usersToAdd) {
 			if(user.trim().length() == 0) continue;
 			
-			System.out.println("Now processing user " + user);
+			source.log("Now processing user " + user, LogService.LOG_DEBUG);
 			publications.addAll(api.getPublicationsFromUser(user));
 		}
 		
@@ -248,28 +237,4 @@ public class ResearchGateTransformation {
 		
 		return false;
 	}
-	
-	
-	private boolean shouldAddInstituteAsTag() {
-		if(source.getConfiguration().isPropertyTrue(ResearchGateProperties.ADD_INSTITUTE_AS_TAG_PROPERTY))	{
-			return true;
-		}
-		
-		if(source.getConfiguration().getProperty(ResearchGateProperties.ADD_INSTITUTE_AS_TAG_PROPERTY) == null) {
-			return new Boolean(ResearchGateProperties.ADD_INSTITUTE_AS_TAG_DEFAULT);
-		}
-		return false;
-	}
-
-    private boolean shouldAddOrganizations() {
-		if(source.getConfiguration().isPropertyTrue(ResearchGateProperties.ADD_ORGANIZATIONS_PROPERTY))	{
-			return true;
-		}
-		
-		if(source.getConfiguration().getProperty(ResearchGateProperties.ADD_ORGANIZATIONS_PROPERTY) == null) {
-			return new Boolean(ResearchGateProperties.ADD_ORGANIZATIONS_DEFAULT);
-		}
-		return false;
-    }
-
 }

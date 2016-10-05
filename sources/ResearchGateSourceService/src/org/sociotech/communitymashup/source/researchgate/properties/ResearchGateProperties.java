@@ -41,16 +41,4 @@ public class ResearchGateProperties {
 	 */
 	public static final String INCLUDE_PERSONS_PROPERTY = "includePersons";
 	public static final String INCLUDE_PERSONS_DEFAULT = "";
-	
-	/**
-	 * If this property is set to true organizations will be added as organization objects.
-	 */
-	public static final String ADD_INSTITUTE_AS_TAG_PROPERTY 	= "addInstituteAsTag";
-	public static final String ADD_INSTITUTE_AS_TAG_DEFAULT 	= "false";
-	
-	/**
-	 * If this property is set to true organizations will be added as organization objects.
-	 */
-	public static final String ADD_ORGANIZATIONS_PROPERTY 	= "addOrganizations";
-	public static final String ADD_ORGANIZATIONS_DEFAULT 	= "false";
 }

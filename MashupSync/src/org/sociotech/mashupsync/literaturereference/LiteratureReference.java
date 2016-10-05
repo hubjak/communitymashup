@@ -11,8 +11,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
 
 /**
- * Data structure to store a literature reference as used in the CommunityMashup
- * synchronization project.
+ * This data structure is used by the CommunityMashup as well as the CommunityMashup synchronization 
+ * tool. It represents a single literature reference with an ordered list of authors.
+ * 
  * @author Jakob Huber
  *
  */
@@ -60,10 +61,28 @@ public class LiteratureReference {
 			return this.lastName + ", " + this.firstName;
 		}
 		
+		public boolean isSamePerson(String firstname, String lastname) {
+			if(!Normalizer.normalize(lastname, Normalizer.Form.NFC)
+					.equals(Normalizer.normalize(this.getLastName(), Normalizer.Form.NFC))) return false;
+			
+			String[] firstNamesC = Normalizer.normalize(firstname.toLowerCase(), Normalizer.Form.NFC).split(" ");
+			String[] firstNamesE = Normalizer.normalize(this.getFirstName().toLowerCase(), Normalizer.Form.NFC).split(" ");
+			
+			// Check if the two persons' first names are equal
+			for(int j = 0; j < Math.min(firstNamesC.length, firstNamesE.length); j++) {
+				if((firstNamesC[j].contains(".") || firstNamesE[j].endsWith(".")) && 
+						firstNamesC[j].charAt(0) != firstNamesE[j].charAt(0)) return false;
+				
+				if(!firstNamesC[j].equals(firstNamesE[j])) return false;
+				
+			}
+			
+			return true;
+		}
+		
 		@Override
 		public boolean equals(Object o) {
-			return o instanceof Author && ((Author) o).getFirstName().equals(getFirstName()) &&
-					((Author) o).getLastName().equals(getLastName());
+			return o instanceof Author && this.isSamePerson(((Author) o).getFirstName(), ((Author) o).getLastName());
 		}
 	}
 	
@@ -75,8 +94,14 @@ public class LiteratureReference {
 	
 	@XmlAttribute
 	private int year;
+	
+	@XmlTransient
+	// Source meta tag
 	private String source;
+	
+	@XmlTransient
 	private LiteratureReference next;
+	
 	private final static String DEFAULT_CHARSET = "UTF-8";
 	
 	public LiteratureReference(String title, int year) {
@@ -85,6 +110,12 @@ public class LiteratureReference {
 		this.authors = new LinkedList<Author>();
 	}
 	
+	/**
+	 * Generates a new LiteratureReference object from the given XML representation.
+	 * 
+	 * @param xml XML Content
+	 * @return Unmarshalled LiteratureReference or null on error
+	 */
 	public static LiteratureReference fromXml(String xml) {
 		if(xml == null)
 			return null;
@@ -99,6 +130,10 @@ public class LiteratureReference {
 		}
 	}
 	
+	/**
+	 * Returns the XML representation of this LiteratureReference for storage in a CommunityMashup.
+	 * @return XML representation
+	 */
 	public String marshal() {
 		try {
 			Marshaller marshaller = JAXBContext.newInstance(LiteratureReference.class).createMarshaller();
@@ -108,7 +143,6 @@ public class LiteratureReference {
 			return baos.toString(DEFAULT_CHARSET);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -163,7 +197,13 @@ public class LiteratureReference {
 	public LiteratureReference getNext() {
 		return next;
 	}
-
+	
+	
+	/**
+	 * Allows to assign one or more other LiteratureReference objects to this one.
+	 * This feature is used by the grouping algorithm for synchronization.
+	 * @param next
+	 */
 	public void setNext(LiteratureReference next) {
 		if(this.next == null)
 			this.next = next;
@@ -171,7 +211,10 @@ public class LiteratureReference {
 			this.next.setNext(next);
 	}
 	
-	public String toString() {
+	/**
+	 * Returns a semicolon-separated list of authors.
+	 */
+	public String getAuthorsString() {
 		StringBuilder sb = new StringBuilder();
 		
 		if(this.getAuthors().size() > 0)
@@ -179,10 +222,22 @@ public class LiteratureReference {
 		else
 			sb.append("Kein Autor");
 		
+
 		for(int i = 1; i < this.getAuthors().size(); i++) {
 			sb.append("; ");
 			sb.append(this.getAuthors().get(i));
 		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * Returns the String representation of the reference.
+	 */
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(this.getAuthorsString());		
 		
 		sb.append(": ");
 		sb.append(this.getTitle());

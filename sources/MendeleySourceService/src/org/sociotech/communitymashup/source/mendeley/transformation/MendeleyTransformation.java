@@ -43,7 +43,6 @@ import org.sociotech.mashupsync.literaturereference.LiteratureReference;
  *
  */
 public class MendeleyTransformation {
-
 	/**
 	 * Reference to the mendeley source service, used e. g. for logging 
 	 */

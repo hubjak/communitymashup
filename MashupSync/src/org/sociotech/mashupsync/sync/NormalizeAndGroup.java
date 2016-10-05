@@ -17,6 +17,18 @@ import org.sociotech.mashupsync.normalization.NormalizationMethod;
 
 import java.text.Normalizer;
 
+
+/**
+ * This sync algorithm implementation is partly based on concepts described in:
+ * Steve Lawrence, C. Lee Giles, Kurt D. Bollacker: Autonomous Citation Matching (1999).
+ * 
+ * The described concepts of grouping and defining representatives for similar citations
+ * were applied to CommunityMashup content objects.
+ * 
+ * @author Jakob Huber
+ *
+ */
+
 public class NormalizeAndGroup implements SyncMethod {
 	private ProgressListener progressListener;
 	private NormalizationMethod normalizer;
@@ -30,6 +42,7 @@ public class NormalizeAndGroup implements SyncMethod {
 			HashMap<String, LiteratureReference> contents,
 			HashMap<String, List<LiteratureReference>> sources,
 			SyncConfiguration config) {
+		
 		HashMap<String, LinkedList<LiteratureReference>> map = new HashMap<>();
 		
 		// Sort references descending by number of authors
@@ -39,38 +52,38 @@ public class NormalizeAndGroup implements SyncMethod {
 		int itemsProcessed = 0;
 		
 		Collections.sort(sorted, new Comparator<LiteratureReference>() {
-
 			@Override
 			public int compare(LiteratureReference r1, LiteratureReference r2) {
 				return new Integer(r2.getAuthors().size()).compareTo(r1.getAuthors().size());
-			}
-			
+			}			
 		});
 		
 		mainLoop: for(LiteratureReference ref : sorted) {
 			String normalizedTitle = ref.getYear() + " " + this.normalizer.normalize(ref);
+			//String normalizedTitle = ref.getTitle();
 			List<LiteratureReference> entries = map.get(normalizedTitle);
-			
-			System.out.println(normalizedTitle);
 			
 			if(this.progressListener != null)
 				this.progressListener.reportProgress(itemsProcessed++, sizeTotal);
 			
 			if(entries == null) {
+				// ref is the first reference with this title
+				
+				
 				// In personal mode, check if the publication matches the configured name
 				if(config.getSyncMode() == SyncConfiguration.Mode.PERSONAL && 
 						!containsAuthor(ref, config.getFirstName(), config.getLastName()))
 						continue;
 				
-				// First publication with this title
 				map.put(normalizedTitle, new LinkedList<LiteratureReference>());
 				
-				// This reference must be the one with the most authors out of all
+				// This reference must be the one with the most complete list of authors out of all
 				// references with the same title, so we set it as a
 				// representative of the group.
 				map.get(normalizedTitle).add(ref);
 			} else {
 				// Another publication with this title exists
+				
 				// Check if it fits into some existing group
 				for(LiteratureReference cmp : entries) {
 					if(isAuthorsMatch(cmp, ref)) {
@@ -80,10 +93,15 @@ public class NormalizeAndGroup implements SyncMethod {
 					}
 				}
 				
-				// If not, a new group is required
+				// If not, the titles are probably only coincidentally equal - a new group is required
+				
+			
+				// In personal mode, check if the publication matches the configured name
 				if(config.getSyncMode() == SyncConfiguration.Mode.PERSONAL && 
 						!containsAuthor(ref, config.getFirstName(), config.getLastName()))
 						continue;
+				
+				// If so, create the new group
 				entries.add(ref);
 			}
 		}
@@ -97,7 +115,7 @@ public class NormalizeAndGroup implements SyncMethod {
 			tmp.put(source, -1);
 		}
 		
-		int i = 0;
+		int i = 0, vorh = 0, nvorh  = 0;
 		
 		for(LinkedList<LiteratureReference> list : map.values()) {
 			
@@ -111,17 +129,25 @@ public class NormalizeAndGroup implements SyncMethod {
 						result.getWarnings().add(new SyncResultEntryInsufficient(ref.getSource(), rep, ref));
 					}
 				} while((ref = ref.getNext()) != null);
-				
+
+				int j = 0;
 				for(String source : sources.keySet()) {
+					
 					if(tmp.get(source) != i) {
 						result.getWarnings().add(new SyncResultEntryMissing(source, rep));
+						j++;
 					}
+					
 				}
+				if(j == 0) vorh++;
+				else nvorh++;
 				
 				i++;
 			}
 			
 		}
+		
+		System.out.println("vorh: " + vorh + " ges: " + contents.size() + " nvorh: " + nvorh);
 		
 		return result;
 	}
@@ -159,26 +185,12 @@ public class NormalizeAndGroup implements SyncMethod {
 	 * @return boolean
 	 */
 	private static boolean isSamePerson(String firstname1, String lastname1, String firstname2, String lastname2) {
-		if(!Normalizer.normalize(lastname1, Normalizer.Form.NFC)
-				.equals(Normalizer.normalize(lastname2, Normalizer.Form.NFC))) return false;
-		
-		String[] firstNamesC = Normalizer.normalize(firstname1.toLowerCase(), Normalizer.Form.NFC).split(" ");
-		String[] firstNamesE = Normalizer.normalize(firstname2.toLowerCase(), Normalizer.Form.NFC).split(" ");
-		
-		for(int j = 0; j < Math.min(firstNamesC.length, firstNamesE.length); j++) {
-			if((firstNamesC[j].contains(".") || firstNamesE[j].contains(".")) && 
-					firstNamesC[j].charAt(0) != firstNamesE[j].charAt(0)) return false;
-			
-			if(!firstNamesC[j].equals(firstNamesE[j])) return false;
-			
-		}
-		
-		return true;
+		return new LiteratureReference.Author(firstname1, lastname1).isSamePerson(firstname2, lastname2);
 	}
 	
 	/**
 	 * Checks if a given literature reference contains an author with the given name
-	 * according to the isSamePerson function.
+	 * according to the isSamePerson method.
 	 * @param ref The literature reference to search for the author
 	 * @param firstname The author's first name
 	 * @param lastname The author's last name

@@ -5,15 +5,22 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.sociotech.mashupsync.api.MashupAPIWrapper;
-import org.sociotech.mashupsync.data.MashupCitationIndex;
-import org.sociotech.mashupsync.data.MashupItem;
-import org.sociotech.mashupsync.data.MashupMetaTagIndex;
+import org.sociotech.mashupsync.api.MashupCitationIndex;
+import org.sociotech.mashupsync.api.MashupItem;
+import org.sociotech.mashupsync.api.MashupMetaTagIndex;
 import org.sociotech.mashupsync.data.SyncResult;
 import org.sociotech.mashupsync.exceptions.EmptyMashupException;
 import org.sociotech.mashupsync.gui.ProgressListener;
 import org.sociotech.mashupsync.literaturereference.LiteratureReference;
 import org.sociotech.mashupsync.normalization.DefaultNormalizer;
 import org.sociotech.mashupsync.sync.SyncMethod;
+
+/**
+ * This class provides easy access to the main functionality of the CommunityMashup synchronization tool.
+ * 
+ * @author Jakob Huber
+ *
+ */
 
 public class MashupSyncFacade {
 	private MashupAPIWrapper api;
@@ -54,11 +61,11 @@ public class MashupSyncFacade {
 	
 	/**
 	 * Initializes the data structures according to the configuration and
-	 * starts the selected algorithm.
+	 * runs the selected algorithm.
 	 * 
 	 * @param config Configuration of the synchronization (e.g. passed by GUI)
-	 * @param progressListener The ProgressListener the algorithm should report the progress to (e.g. GUI).
-	 * @return 
+	 * @param progressListener (optional) The ProgressListener the algorithm should report the progress to (e.g. GUI).
+	 * @return SyncResult object
 	 */
 	public SyncResult synchronize(SyncConfiguration config, ProgressListener progressListener) {		
 		if(this.method == null)
@@ -72,6 +79,7 @@ public class MashupSyncFacade {
 		for(MashupCitationIndex.MashupCitation item : api.getCitationIndex().getCitations()) {
 			ref = LiteratureReference.fromXml(item.getCitationData());
 			
+			// Check minimum year
 			if(ref.getYear() >= config.getMinYear())
 				contents.put(item.getContentIdent(), ref);
 		}

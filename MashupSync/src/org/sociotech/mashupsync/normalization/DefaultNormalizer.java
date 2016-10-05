@@ -15,11 +15,11 @@ import org.sociotech.mashupsync.literaturereference.LiteratureReference;
 public class DefaultNormalizer implements NormalizationMethod {
 	
 	private final static String[] abbr_search = {
-		"z\\.( )*?B\\.", "etc\\.", "et al\\.", "usw.", 
+		"et al\\.", "conf\\.", "proc\\.", "intl\\.", "ß", "\\sund\\s", "^und", "und$", "&"
 	};
 	
 	private final static String[] abbr_replace = {
-		"zum beispiel", "et cetera", "et alii", "und so weiter"
+		"et alii", "conference", "proceedings", "international", "ss", " and ", "and ", " and", " and "
 	};
 	
 	@Override
@@ -28,7 +28,7 @@ public class DefaultNormalizer implements NormalizationMethod {
 		String tmp = reference.getTitle().toLowerCase();
 		
 		// Convert to UTF-8 normal form NFD
-		tmp = Normalizer.normalize(tmp, Normalizer.Form.NFD);
+		tmp = Normalizer.normalize(tmp, Normalizer.Form.NFKD);
 		
 		// Expand common abbreviations
 		for(int i = 0; i < abbr_search.length; i++)

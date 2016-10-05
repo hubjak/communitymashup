@@ -1,4 +1,4 @@
-package org.sociotech.mashupsync.data;
+package org.sociotech.mashupsync.api;
 
 import java.util.List;
 

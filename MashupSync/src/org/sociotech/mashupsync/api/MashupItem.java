@@ -1,10 +1,17 @@
-package org.sociotech.mashupsync.data;
+package org.sociotech.mashupsync.api;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import javax.xml.bind.annotation.*;
-
-
+/**
+ * This class is currently not used. It provides generic access to the index output
+ * of a CommunityMashup.
+ * 
+ * @author Jakob Huber
+ *
+ */
 @XmlRootElement(name="items")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MashupItem {

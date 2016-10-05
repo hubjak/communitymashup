@@ -1,6 +1,5 @@
 package org.sociotech.communitymashup.source.researchgate.apiwrapper.items;
 
-import javax.xml.bind.annotation.*;
 
 public class Author {
 	private String firstname;
@@ -13,7 +12,11 @@ public class Author {
 	public Author(String firstname, String lastname, String id) {
 		this.setFirstname(firstname);
 		this.setLastname(lastname);
-		this.setID(id);
+		
+		if(id != null)
+			this.setID("rga_" + id);
+		else
+			this.setID("rga_" + (lastname.toLowerCase() + "_" + firstname.toLowerCase()).replaceAll(" ", "_"));
 	}
 	
 	public void setID(String id) {

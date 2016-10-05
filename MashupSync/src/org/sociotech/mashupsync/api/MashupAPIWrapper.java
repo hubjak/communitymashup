@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
@@ -37,7 +38,7 @@ public class MashupAPIWrapper {
 	
 	public void connect() throws Exception {
 		if(this.baseUrl == null)
-			throw new Exception("No Mashup base URL defined");
+			throw new IllegalStateException("No Mashup base URL defined");
 		
 		// fetch meta tag list
 		String metaTagIndex = readUrl(this.baseUrl + "/getMetaTags");

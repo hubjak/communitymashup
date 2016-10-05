@@ -1,10 +1,15 @@
-package org.sociotech.mashupsync.data;
+package org.sociotech.mashupsync.api;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.bind.annotation.*;
 
+/**
+ * This class represents the output of the meta tag list of a CommunityMashup.
+ * @author Jakob Huber
+ *
+ */
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name="XMI", namespace = "http://www.omg.org/XMI")

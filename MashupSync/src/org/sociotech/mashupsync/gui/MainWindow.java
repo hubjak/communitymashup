@@ -363,7 +363,6 @@ public class MainWindow implements ProgressListener {
 			}
 		});
 		
-		System.out.println(itemsProcessed + " / " + itemsTotal);
 		
 	}
 }

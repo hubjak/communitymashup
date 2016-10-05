@@ -13,7 +13,7 @@
 			  <properties Key="createAuthorPersons" Value="true" />
 			  <properties Key="addInstituteAsTag" Value="true" />
 			  <properties Key="createEditorPersons" Value="false" />
-			  <properties Key="minYear" Value="2008" />
+			  <properties Key="minYear" Value="2000" />
 			</configuration>
 		</sources>
 		
@@ -40,7 +40,8 @@
 			  <properties Key="restrictPrivateGroupsTo" Value="CSCM" />
 			</configuration>
 		</sources>
-		<!--
+		
+		<!-- 
 		<sources bundleId="org.sociotech.communitymashup.source.ResearchGateSourceService"
 			name="researchgate" ident="researchgatesrc">
 			<configuration>
@@ -48,8 +49,8 @@
 			  <properties Key="includePersons" Value="Michael_Koch" />
 			  
 			</configuration>
-		</sources>
-		-->
+		</sources>-->
+	
 		<interfaces xsi:type="application:RESTInterface" urlSuffix="" />
 		
 	</mashups>
