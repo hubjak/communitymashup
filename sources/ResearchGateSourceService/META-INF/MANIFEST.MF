@@ -13,5 +13,5 @@ Import-Package: org.apache.commons.codec;version="1.3.0",
  org.osgi.service.log;version="1.3.0"
 Require-Bundle: org.sociotech.communitymashup.core;bundle-version="0.0.1",
  org.sociotech.communitymashup.source.SourceServiceFacade;bundle-version="0.0.1",
- SyncLiteratureReference;bundle-version="0.0.1",
+ org.sociotech.mashupsync;bundle-version="0.0.1",
  org.json;bundle-version="1.0.0"
