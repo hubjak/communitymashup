@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.List;
 public class MainWindow implements ProgressListener {
 	private Shell shell;
 	private Display display;
-	private MashupSyncFacade facade;
+	private final MashupSyncFacade facade;
 	private ProgressBar syncProgress;
 	private int itemsProcessed;
 	private int itemsTotal;
@@ -53,6 +53,7 @@ public class MainWindow implements ProgressListener {
     public MainWindow(MashupSyncFacade facade_) {
         this.display = new Display();
         this.shell = new Shell(display);
+        this.facade = facade_;
         
         final MainWindow window = this;
         final MashupSyncFacade facade = facade_;

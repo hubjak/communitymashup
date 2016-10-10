@@ -103,7 +103,6 @@ public class MediaTUMTransformation {
 		
 		// go through all objects retrieved from MediaTUM
 		for (Node node: objects){
-			System.out.println(node);
 			// check lastUpdated
 			if (lastUpdated != null) {
 				long tmpl = node.getUpdateTime();
@@ -536,7 +535,12 @@ public class MediaTUMTransformation {
 		Date date = null;
 		String tmps = node.getAttribute("proj-beginn"); // or use "proj-end"?
 		if (tmps == null || tmps.length()<1) {
-			tmps = node.getAttribute("year"); // for publications
+			// BUGFIX: You cannot parse the mediatum years (2016-00-00T00:00:00) with
+			// a SimpleDateFormat as this will always result in November 30 of the previous year.
+			
+			if(node.getAttribute("year") == null || node.getAttribute("year").split("-").length < 2) return null;
+			// Returning January 1 instead
+			return new Calendar.Builder().setDate(Integer.valueOf(node.getAttribute("year").split("-")[0]), 1, 1).build().getTime();
 		}
 
 		if (tmps!=null && tmps.length()>0) {

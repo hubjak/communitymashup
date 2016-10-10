@@ -80,10 +80,6 @@ public class LiteratureReference {
 			return true;
 		}
 		
-		@Override
-		public boolean equals(Object o) {
-			return o instanceof Author && this.isSamePerson(((Author) o).getFirstName(), ((Author) o).getLastName());
-		}
 	}
 	
 	private String title;

@@ -92,7 +92,7 @@ public class ResearchGateTransformation {
 		// go through all objects retrieved from ResearchGate
 		for (Publication p : publications){			
 			// check if document already exists
-			if(source.getContentWithSourceIdent(p.getId()) != null)
+			if(source.getContentWithSourceIdent(p.getId()) != null || p.getCreationDate() == null)
 				continue;
 			
 			// citaiton object
@@ -110,8 +110,11 @@ public class ResearchGateTransformation {
 			content.metaTag(ResearchGateTags.RESEARCHGATE);
 			content.metaTag(p.getType());
 			content.setName(p.getTitle());
-			content.setStringValue(p.getAbstractText());
-			content.setCreated(p.getCreationDate());
+			
+			if(p.getAbstractText() != null)
+				content.setStringValue(p.getAbstractText());
+			
+			
 			ref.setTitle(p.getTitle());
 			
 			Calendar c = Calendar.getInstance();
@@ -125,7 +128,7 @@ public class ResearchGateTransformation {
 			for(Author a : p.getAuthors()) {
 				ref.addAuthor(a.getFirstname(), a.getLastname());
 				
-				if(!shouldCreateAuthors() && first || shouldCreateEditors() && first || !shouldCreateEditors() && !first) {
+				if(!shouldCreateAuthors() && first || !shouldCreateEditors() && !first) {
 					first = false;
 					continue;
 				}
@@ -138,12 +141,11 @@ public class ResearchGateTransformation {
 					content.addContributor(person);
 				
 				first = false;
-			}
-			
+			} 
 			content.addCitation(ref.marshal());	
 
 		    
-		}
+		} // (2005, 11) (2006, 14) (2007, 12) (2008, 28) (2009, 33) (2010, 17) (2011, 20) (2012, 17) (2013, 21) (2014, 19) (2015, 16) (2016, 7)
 	}
 	
 	/**

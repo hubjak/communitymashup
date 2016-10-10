@@ -83,21 +83,20 @@ public class MashupSyncFacade {
 			if(ref.getYear() >= config.getMinYear())
 				contents.put(item.getContentIdent(), ref);
 		}
-		
+
 		for(MashupMetaTagIndex.MashupMetaTag item : api.getMetaTagIndex().getMetaTags()) {
 			if(config.containsSource(item.getName())) {
 				LinkedList<LiteratureReference> refs = new LinkedList<>();
 				
 				for(String ident : item.getContentIdents())
 					if(contents.get(ident) != null) {
-						refs.add(contents.get(ident));
 						contents.get(ident).setSource(item.getName());
+						refs.add(contents.get(ident));
 					}
 				
 				sources.put(item.getName(), refs);
 			}
 		}
-		
 		if(progressListener == null)
 			return this.method.synchronize(contents, sources, config);
 		else

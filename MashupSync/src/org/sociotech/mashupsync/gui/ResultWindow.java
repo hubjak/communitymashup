@@ -33,21 +33,10 @@ public class ResultWindow {
 	private Shell shell;
 	private Display display;
 	
-	private void displayError(final String errorMsg) {
-		display.syncExec(new Runnable() {
-			public void run() {				
-				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING);
-		        
-		        messageBox.setText("Fehler");
-		        messageBox.setMessage(errorMsg);
-		        messageBox.open();
-			}
-		});
-	}
-	
-	public static void main(String[] args) {
+	// for testing only
+	/*public static void main(String[] args) {
 		new ResultWindow(null, new Display());
-	}
+	}*/
 	
     public ResultWindow(final SyncResult result, Display display) {
         this.display = display;
@@ -74,6 +63,7 @@ public class ResultWindow {
         		writeFile(filename, result.toCSV());
         	}
         });
+        
         btnExportCSV.setText("CSV");
         
         Button btnExportXML = new Button(grpExport, SWT.DEFAULT);

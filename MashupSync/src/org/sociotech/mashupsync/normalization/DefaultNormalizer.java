@@ -27,15 +27,18 @@ public class DefaultNormalizer implements NormalizationMethod {
 		// convert to lower case
 		String tmp = reference.getTitle().toLowerCase();
 		
-		// Convert to UTF-8 normal form NFD
-		tmp = Normalizer.normalize(tmp, Normalizer.Form.NFKD);
 		
+		// Convert to UTF-8 normal form NFKD
+		tmp = Normalizer.normalize(tmp, Normalizer.Form.NFKD);
+
 		// Expand common abbreviations
 		for(int i = 0; i < abbr_search.length; i++)
 			tmp = tmp.replaceAll(abbr_search[i], abbr_replace[i]);
 		
+
 		// Replace any kind of dashes with spaces
 		tmp = tmp.replaceAll("\\p{Pd}", " ");
+
 		
 		// Replace slashes, pluses and stars with spaces
 		tmp = tmp.replaceAll("[\\/\\\\+\\*]", " ");

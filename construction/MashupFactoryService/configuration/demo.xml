@@ -39,9 +39,8 @@
 			  <properties Key="refreshToken" Value="MSwxMjYzMCwxNzYsYWxsLCwsLHhnVk9wak5FeGtxUHIwYUNrd19uNUFtLXRWbw" />
 			  <properties Key="restrictPrivateGroupsTo" Value="CSCM" />
 			</configuration>
-		</sources>
+		</sources>		
 		
-		<!-- 
 		<sources bundleId="org.sociotech.communitymashup.source.ResearchGateSourceService"
 			name="researchgate" ident="researchgatesrc">
 			<configuration>
@@ -49,8 +48,8 @@
 			  <properties Key="includePersons" Value="Michael_Koch" />
 			  
 			</configuration>
-		</sources>-->
-	
+		</sources>
+		
 		<interfaces xsi:type="application:RESTInterface" urlSuffix="" />
 		
 	</mashups>

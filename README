@@ -1,0 +1,26 @@
+Install steps for the CommunityMashup Sync Tool:
+
+0) If not already done, set up your Eclipse installation for using OSGi, EMF etc.
+   as explained in [1]
+   !!! ON WINDOWS, MAKE SURE THAT ECLIPSE IS USING UTF-8 GLOBALLY !!!
+1) Extract the contents of the archive to an arbitrary directory
+2) Open Eclipse and use the File > Import > "Existing Projects into Workspace" wizard.
+   Select the directory you extracted the files to, enable nested search and check 
+   all the entries found, then finish the wizard.
+3) Visit [2] and and download the right SWT library for your OS (swt-****.zip)
+4) Open the "Existing Projects into Workspace" wizard again, choose the 
+   "archive file" option and select the downloaded swt-****.zip file, then finish
+   the wizard.
+5) Create a new OSGi Run Configuration as explained in [3], except:
+   - Rather than FeedSourceService, select MediaTUMSourceService, MendeleySourceService
+     and ResearchGateSourceService (or any other services you wish to use)
+   - Furthermore, select the following projects: MashupSync, org.json, org.eclipse.swt
+   - Replace demo.xml by your own configuration file or adjust the existing demo.xml
+6) Run the configuration and wait until the CommunityMashup is ready
+7) Start the sync tool by running org.sociotech.mashupsync.gui.GUIMain as a
+   Java Application 
+
+
+[1] https://sociotech.atlassian.net/wiki/display/MASHUP/Development+Environment
+[2] http://download.eclipse.org/eclipse/downloads
+[3] https://sociotech.atlassian.net/wiki/display/MASHUP/Run+with+Demo+Configuration

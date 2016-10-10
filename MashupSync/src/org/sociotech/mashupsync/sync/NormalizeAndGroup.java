@@ -58,9 +58,12 @@ public class NormalizeAndGroup implements SyncMethod {
 			}			
 		});
 		
+		System.out.println("Abzuarbeiten: " + sorted.size());
+		
+		int matches = 0;
+		
 		mainLoop: for(LiteratureReference ref : sorted) {
 			String normalizedTitle = ref.getYear() + " " + this.normalizer.normalize(ref);
-			//String normalizedTitle = ref.getTitle();
 			List<LiteratureReference> entries = map.get(normalizedTitle);
 			
 			if(this.progressListener != null)
@@ -90,12 +93,16 @@ public class NormalizeAndGroup implements SyncMethod {
 						// If so, add it to the existing group.
 						cmp.setNext(ref);
 						continue mainLoop;
+					} else {
+						System.out.println("====== NO MATCH =====");
+						System.out.println(cmp.getAuthorsString());
 					}
 				}
 				
 				// If not, the titles are probably only coincidentally equal - a new group is required
 				
-			
+				System.out.println(ref.getAuthorsString());
+				System.out.println("=======================================\n\n\n");
 				// In personal mode, check if the publication matches the configured name
 				if(config.getSyncMode() == SyncConfiguration.Mode.PERSONAL && 
 						!containsAuthor(ref, config.getFirstName(), config.getLastName()))
@@ -114,10 +121,14 @@ public class NormalizeAndGroup implements SyncMethod {
 		for(String source : sources.keySet()) {
 			tmp.put(source, -1);
 		}
-		
-		int i = 0, vorh = 0, nvorh  = 0;
+				
+		int i = 0;
+		int k = 0;
+		int l = 0;
+		int m = 0;
 		
 		for(LinkedList<LiteratureReference> list : map.values()) {
+			m++;
 			
 			for(LiteratureReference ref : list) {
 				LiteratureReference rep = ref;
@@ -129,8 +140,9 @@ public class NormalizeAndGroup implements SyncMethod {
 						result.getWarnings().add(new SyncResultEntryInsufficient(ref.getSource(), rep, ref));
 					}
 				} while((ref = ref.getNext()) != null);
-
+				
 				int j = 0;
+
 				for(String source : sources.keySet()) {
 					
 					if(tmp.get(source) != i) {
@@ -139,15 +151,20 @@ public class NormalizeAndGroup implements SyncMethod {
 					}
 					
 				}
-				if(j == 0) vorh++;
-				else nvorh++;
+				
+				if(j == 0) k++;
+				else if(j == 1) l++;
 				
 				i++;
 			}
 			
 		}
 		
-		System.out.println("vorh: " + vorh + " ges: " + contents.size() + " nvorh: " + nvorh);
+		System.out.println("In allen " + k);
+		System.out.println("In zwei " + l);
+		System.out.println("Gesamt " + i);
+		System.out.println("Titel " + m);
+		System.out.println("Matches " + matches);
 		
 		return result;
 	}
